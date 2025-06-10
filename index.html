@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Férias - Leis Trabalhistas Brasileiras</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏖️ Calculadora de Férias</h1>
+            <p>Cálculo preciso conforme Leis Trabalhistas Brasileiras</p>
+            <button id="aboutBtn" class="about-btn">ℹ️ Sobre</button>
+        </div>
+
+        <div class="form-container">
+            <form id="feriasForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="salarioBruto">
+                            Salário Bruto (R$)
+                            <div class="label-help">Valor registrado na CTPS, sem descontos</div>
+                        </label>
+                        <input type="number" id="salarioBruto" step="0.01" min="0" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="outrosProventos">
+                            Média de Outros Proventos (R$)
+                            <div class="label-help">Horas extras, adicional noturno, comissões nos últimos 12 meses</div>
+                        </label>
+                        <input type="number" id="outrosProventos" step="0.01" min="0" value="0">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="dependentes">
+                            Número de Dependentes
+                            <div class="label-help">Conforme declaração do Imposto de Renda</div>
+                        </label>
+                        <input type="number" id="dependentes" min="0" value="0">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="pensaoAlimenticia">
+                            Pensão Alimentícia (R$)
+                            <div class="label-help">Valor mensal descontado, se houver</div>
+                        </label>
+                        <input type="number" id="pensaoAlimenticia" step="0.01" min="0" value="0">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="diasFerias">
+                            Dias de Férias
+                            <div class="label-help">Quantidade de dias que serão gozados</div>
+                        </label>
+                        <select id="diasFerias" required>
+                            <option value="30">30 dias (férias completas)</option>
+                            <option value="20">20 dias (2/3 do período)</option>
+                            <option value="15">15 dias (1/2 do período)</option>
+                            <option value="10">10 dias (1/3 do período)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            Abono Pecuniário
+                            <div class="label-help">Venda de 1/3 das férias (até 10 dias)</div>
+                        </label>
+                        <div class="toggle-group">
+                            <div class="toggle-option active" data-value="false">Não</div>
+                            <div class="toggle-option" data-value="true">Sim</div>
+                        </div>
+                        <input type="hidden" id="abonoPecuniario" value="false">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            Adiantamento 13º Salário
+                            <div class="label-help">Receber 1ª parcela do 13º junto com as férias</div>
+                        </label>
+                        <div class="toggle-group">
+                            <div class="toggle-option active" data-value="false">Não</div>
+                            <div class="toggle-option" data-value="true">Sim</div>
+                        </div>
+                        <input type="hidden" id="adiantamento13" value="false">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="faltasInjustificadas">
+                            Faltas Injustificadas no Período
+                            <div class="label-help">Número de faltas injustificadas nos últimos 12 meses</div>
+                        </label>
+                        <input type="number" id="faltasInjustificadas" min="0" value="0">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="feriasPeriodo1">
+                            Período 1 (dias)
+                            <div class="label-help">Primeira parte das férias</div>
+                        </label>
+                        <input type="number" id="feriasPeriodo1" min="5" max="20" value="15">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="feriasPeriodo2">
+                            Período 2 (dias)
+                            <div class="label-help">Segunda parte (opcional)</div>
+                        </label>
+                        <input type="number" id="feriasPeriodo2" min="0" max="15" value="0">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="tipoAdicional">
+                            Adicional
+                            <div class="label-help">Periculosidade/Insalubridade</div>
+                        </label>
+                        <select id="tipoAdicional">
+                            <option value="0">Nenhum</option>
+                            <option value="periculosidade">Periculosidade (30%)</option>
+                            <option value="insalubridade">Insalubridade</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" id="grauInsalubridadeGroup" style="display:none;">
+                        <label for="grauInsalubridade">
+                            Grau Insalubridade
+                            <div class="label-help">Nível de insalubridade</div>
+                        </label>
+                        <select id="grauInsalubridade">
+                            <option value="0.1">Grau Mínimo (10%)</option>
+                            <option value="0.2">Grau Médio (20%)</option>
+                            <option value="0.4">Grau Máximo (40%)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            Tipo de Regime
+                            <div class="label-help">CLT ou Estatutário</div>
+                        </label>
+                        <div class="toggle-group">
+                            <div class="toggle-option active" data-value="clt">CLT</div>
+                            <div class="toggle-option" data-value="estatutario">Estatutário</div>
+                        </div>
+                        <input type="hidden" id="tipoRegime" value="clt">
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="submit" class="calculate-btn">🧮 Calcular Férias</button>
+                    <button type="button" id="exportPdf" class="secondary-btn">📄 Exportar PDF</button>
+                </div>
+            </form>
+
+            <div id="results" class="results">
+                <h3 class="resultado-calculo-title">💰 Resultado do Cálculo</h3>
+                <div id="resultItems"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Sobre -->
+    <div id="aboutModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>ℹ️ Sobre a Calculadora de Férias</h2>
+            
+            <div class="modal-section">
+                <h3>Como funciona o cálculo?</h3>
+                <p>O valor das férias é calculado com base no <strong>salário bruto do trabalhador</strong>, acrescido de <strong>um terço (1/3)</strong> desse salário. Além disso, outros valores podem ser incorporados ao cálculo, como:</p>
+                <ul>
+                    <li><strong>Média de horas extras:</strong> Se o trabalhador costuma fazer horas extras, a média dessas horas nos últimos 12 meses é somada ao salário para o cálculo das férias.</li>
+                    <li><strong>Adicionais noturno, de insalubridade ou periculosidade:</strong> Se o trabalhador recebe esses adicionais de forma habitual, eles também são incluídos na base de cálculo.</li>
+                    <li><strong>Comissões e gratificações:</strong> Valores recebidos regularmente a título de comissão ou gratificação também entram no cálculo.</li>
+                </ul>
+                <p>Após somar todos esses valores para chegar à <strong>base de cálculo das férias</strong>, são aplicados os descontos obrigatórios, como:</p>
+                <ul>
+                    <li><strong>Imposto de Renda Retido na Fonte (IRRF):</strong> Calculado sobre o valor total das férias (salário + 1/3), seguindo a tabela progressiva da Receita Federal.</li>
+                    <li><strong>Contribuição Previdenciária (INSS):</strong> Também calculada sobre o valor das férias, respeitando o teto de contribuição.</li>
+                </ul>
+                <p>É importante lembrar que a legislação trabalhista brasileira pode ser complexa, e casos específicos podem exigir a análise de um profissional de RH ou advogado trabalhista para garantir que todos os direitos sejam cumpridos.</p>
+            </div>
+
+            <div class="modal-section">
+                <h3>Base Legal</h3>
+                <p>O direito e o cálculo das férias são amparados pelas seguintes legislações:</p>
+                <ul>
+                    <li><strong>CLT - Artigos 129 a 153:</strong> Detalham as regras sobre o período aquisitivo, concessão, remuneração, fracionamento e demais aspectos das férias.</li>
+                    <li><strong>Constituição Federal - Art. 7º, XVII:</strong> Garante o direito a férias anuais remuneradas com, pelo menos, um terço a mais do que o salário normal.</li>
+                </ul>
+            </div>
+
+            <div class="modal-section">
+                <h3>Importância do Cálculo Correto</h3>
+                <p>Realizar o cálculo correto das férias é essencial para garantir que o trabalhador receba todos os seus direitos de forma justa e transparente. Um erro no cálculo pode levar a prejuízos financeiros para o empregado, além de possíveis complicações legais para o empregador.</p>
+                <p>Esta calculadora foi desenvolvida para auxiliar tanto empregadores quanto empregados a entenderem melhor como as férias devem ser calculadas, promovendo maior transparência e conformidade com a legislação trabalhista brasileira.</p>
+            </div>
+
+            <div class="modal-section">
+                <h3>Projeto no GitHub</h3>
+                <p>Você pode acessar o código-fonte deste projeto no GitHub:</p>
+                <p><a href="https://github.com/Erick-Lim-Souza/Calculadora-de-Ferias" target="_blank">Calculadora de Férias no GitHub</a></p>
+                <p>Desenvolvido por Erick de Lima Souza - By. <a href="#" target="_blank">Green Monster Project</a>© 2025</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
